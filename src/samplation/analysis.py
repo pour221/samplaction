@@ -7,14 +7,20 @@ from .qc_utils import (run_seqkit, prepare_seqkit_res, apply_threshold_filters, 
 def analyze(input_data: Path, output_file: Path,
             target_size: int | None = None,
             threshold_num_seqs: int = 1000, threshold_n50: int = 5000,
-            metrics: list[str] | None = None) -> int:
+            metrics: list[str] | None = None,
+            eps: float = 0.8,
+            min_samples: int = 5) -> int:
 
+    if not input_data.exists():
+        raise FileNotFoundError(f'Input path does not exist: {input_data}')
+    if output_file.is_dir():
+        raise IsADirectoryError(f'Output should be a file not a directory')
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
     print(f'[STEP 0] Check inputs')
 
     if input_data.is_dir():
-        print(f'[INFO] Input is folder with assemblies. Running seqkit')
+        print(f'[INFO] Input is a folder. Running seqkit')
         quality_df_path = run_seqkit(input_data, output_file.parent)
         original_quality_df = pd.read_csv(quality_df_path, sep=r'\s+')
     else:
@@ -24,15 +30,15 @@ def analyze(input_data: Path, output_file: Path,
     quality_df = prepare_seqkit_res(original_quality_df)
     quality_df = apply_threshold_filters(quality_df, target_size, threshold_num_seqs, threshold_n50)
     quality_df = apply_quality_score_filter(quality_df)
-    print(f'[INFO] Samples dropped after filtering: {original_quality_df.shape[0] - quality_df.shape[0]}')
+    print(f'[INFO] Samples dropped after threshold filtering: {original_quality_df.shape[0] - quality_df.shape[0]}')
 
     print(f'[STEP 2] Running PCA')
     pca_df, explained_ratio = do_pca(quality_df, metrics)
     for num, ratio in enumerate(explained_ratio):
-        print(f'[INFO] PС{num+1} explains {ratio*100:.2f}% of variance')
+        print(f'[INFO] PC{num+1} explains {ratio*100:.2f}% of variance')
 
     print(f'[STEP 3] Running DBSCAN')
-    pca_df = do_dbscan(pca_df)
+    pca_df = do_dbscan(pca_df, eps, min_samples)
     filtered_df = pca_df[pca_df['cluster'] != -1]
     quality_df['cluster'] = pca_df['cluster']
     quality_df['selected'] = quality_df.index.isin(filtered_df.index)
