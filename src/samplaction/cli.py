@@ -9,7 +9,7 @@ def args_parser():
     parser = argparse.ArgumentParser(prog='samplaction',
                                      description='CLI tool for filtering genomic assemblies outliers based on seqkit metrics')
 
-    parser.add_argument('--version', action='version', version='samplaction 0.1.1')
+    parser.add_argument('--version', action='version', version='samplaction 0.2')
 
     parser.add_argument('-i', '--input', required=True,
                         help='tsv file with assembly stats (output from seqkit stats -a) or path to folder with genomes to run seqkit')
