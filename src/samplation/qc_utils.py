@@ -33,7 +33,7 @@ def prepare_seqkit_res(in_quality_df):
 
     return quality_df.replace(',', '', regex=True).astype(float)
 
-def drop_outsiders(in_quality_df, target_size=None, threshold_num_seqs=1000, threshold_n50=5000):
+def apply_threshold_filters(in_quality_df, target_size=None, threshold_num_seqs=1000, threshold_n50=5000):
     quality_df = in_quality_df.copy()
 
     if target_size is None:
@@ -51,7 +51,7 @@ def drop_outsiders(in_quality_df, target_size=None, threshold_num_seqs=1000, thr
 
     return processing_df
 
-def drop_by_quality_score(in_quality_df):
+def apply_quality_score_filter(in_quality_df):
     quality_df = in_quality_df.copy()
     metrics = ['N50', 'max_len', 'num_seqs']
 
@@ -103,5 +103,5 @@ def visualize_res(dbscan_df, output_file: Path):
     axs[1].set_xlim(xmin, xmax)
     axs[1].set_ylim(ymin, ymax)
 
-    plt.savefig(f'{output_file.parent}/{output_file.stem}.png', dpi=120, bbox_inches='tight', facecolor='white')
+    plt.savefig(output_file, dpi=120, bbox_inches='tight', facecolor='white')
     plt.close(fig)
