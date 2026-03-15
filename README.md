@@ -159,3 +159,6 @@ Plot example:
 Samplaction uses heuristic filtering and unsupervised clustering.
 
 The results should be interpreted as guidance for dataset QC, not as a definitive assessment of assembly quality.
+
+## Test data
+Samplaction was tested on a random subset of *E. coli* genome assemblies. All genomes used for testing were obtained from NCBI GenBank and are publicly available.
